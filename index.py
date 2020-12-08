@@ -11,7 +11,7 @@ import subprocess
 import requests
 import requests_cache
 import ipaddress
-import smtplib
+import smtplib,ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
@@ -763,7 +763,9 @@ def sendMail(
     g = Generator(m, False)
     g.flatten(msg)
     if "SMTP_SSL" in config:
-        server = smtplib.SMTP_SSL(config["SMTP_HOST"])
+        server = smtplib.SMTP(config["SMTP_HOST"],config["SMTP_PORT"])
+        context = ssl.create_default_context()
+        server.starttls(context=context)
     else:
         server = smtplib.SMTP(config["SMTP_HOST"])
     if "SMTP_USERNAME" in config:
@@ -780,6 +782,7 @@ def getConfig():
         "GH_OAUTH_TOKEN",
         "SMTP_SSL",
         "SMTP_HOST",
+        "SMTP_PORT",
         "EMAIL_FROM",
         "SMTP_USERNAME",
         "SMTP_PASSWORD",
